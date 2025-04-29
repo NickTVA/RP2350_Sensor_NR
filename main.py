@@ -189,6 +189,16 @@ def drip():
         memory_leak_list.append(os.urandom(random.randint(16,3200)))
         print("drip...")
 
+#blink lights
+def blink(led,secs,speed):
+    start_time = time.time()
+
+    while time.time() - start_time < secs:
+        led.value(1)
+        time.sleep(speed)  # Keep LED on for 0.5 seconds
+        led.value(0)
+        time.sleep(speed)  # Keep LED off for 0.5 seconds
+    led.value(0) #Ensure LED is off at the end
 
 def get_api_get(tag, traceparent, tracecontext):
     header_data = {"traceparent": traceparent, "tracestate": "newrelic="+tracecontext}
@@ -199,6 +209,7 @@ def get_api_get(tag, traceparent, tracecontext):
     if(rfid_response.status_code == 200) :
         return rfid_response.text
     return "DENIED"
+
 
 def handle_card(tag_id) :
     
@@ -306,6 +317,10 @@ while True:
                     display = ssd1306.SSD1306_I2C(128, 32, i2c)
                     display.text(response, 0, 0)
                     display.show()
+                    if not response == 'DENIED':
+                        blink(green_led,2,0.25)
+                    else:
+                        blink(red_led,2,0.25)
                     send_log_to_nr("Read Card: " + response, time.time())
 
 
@@ -327,4 +342,5 @@ while True:
             print('An exception handling error occurred:', e1)
     gc.collect()
     utime.sleep_ms(5) 
+
 
